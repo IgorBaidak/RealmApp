@@ -113,8 +113,7 @@ class TasksTVC: UITableViewController {
             } else {
                 let task = Task()
                 task.name = newTaskName
-                let tasksList = TasksList()
-                StorageManager.saveTask(tasksList, task: task)
+                StorageManager.saveTasks(tasks: task)
                 self.tableView.reloadData()
                 //                self.tableView.insertRows(at: [IndexPath(row: self.tasksLists.count - 1, section: 0)], with: .automatic)
             }

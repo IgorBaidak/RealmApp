@@ -89,6 +89,16 @@ class StorageManager {
             task.note = newNote
         }
     }
+    
+    static func saveTasks(tasks: Task) {
+        do {
+            try realm.write {
+                realm.add(tasks)
+            }
+        } catch {
+            print("saveTasks error: \(error)")
+        }
+    }
 
     static func deleteTask(_ task: Task) {
         try! realm.write {
