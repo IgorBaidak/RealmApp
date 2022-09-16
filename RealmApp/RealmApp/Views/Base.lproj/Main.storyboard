@@ -22,6 +22,9 @@
                                 <segment title="A-Z"/>
                                 <segment title="Data"/>
                             </segments>
+                            <connections>
+                                <action selector="segmentedControlValueChanged:" destination="7lu-Yr-z4D" eventType="valueChanged" id="Tf2-D6-4Xm"/>
+                            </connections>
                         </segmentedControl>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" textLabel="1Wu-gq-5Rz" detailTextLabel="eti-Eq-gKz" style="IBUITableViewCellStyleValue1" id="EYe-Mp-Dic">
