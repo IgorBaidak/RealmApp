@@ -8,6 +8,8 @@
 import UIKit
 import RealmSwift
 
+var notificationToken: NotificationToken?
+
 
 class TasksListsTVC: UITableViewController {
     
@@ -101,15 +103,15 @@ class TasksListsTVC: UITableViewController {
     // MARK: - Table view delegate
 
     
-    /*
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if let destinationVC = segue.destination as? TasksTVC,
+           let index = tableView.indexPathForSelectedRow {
+           let tasksList = tasksLists[index.row]
+            destinationVC.currentTaskList = tasksList
+        }
     }
-    */
     
     @objc private func addBarButtonSystemItemSelector() {
         alertForAddAndUpdatesListTasks { [weak self] in
@@ -159,6 +161,46 @@ class TasksListsTVC: UITableViewController {
         }
         present(alert, animated: true)
     }
+    
+    private func addTasksListsObserver() {
+            // Realm notification
+        
+            notificationToken = tasksLists.observe { change in
+                switch change {
+                case .initial:
+                    print("initial element")
+                case .update(_, let deletions, let insertions, let modifications):
+                        
+                    print("deletions: \(deletions)")
+                    print("insertions: \(insertions)")
+                    print("modifications: \(modifications)")
+
+                    if !modifications.isEmpty {
+                        var indexPathArray = [IndexPath]()
+                        for row in modifications {
+                            indexPathArray.append(IndexPath(row: row, section: 0))
+                        }
+                        self.tableView.reloadRows(at: indexPathArray, with: .automatic)
+                    }
+                    if !deletions.isEmpty {
+                        var indexPathArray = [IndexPath]()
+                        for row in deletions {
+                            indexPathArray.append(IndexPath(row: row, section: 0))
+                        }
+                        self.tableView.deleteRows(at: indexPathArray, with: .automatic)
+                    }
+                    if !insertions.isEmpty {
+                        var indexPathArray = [IndexPath]()
+                        for row in insertions {
+                            indexPathArray.append(IndexPath(row: row, section: 0))
+                        }
+                        self.tableView.insertRows(at: indexPathArray, with: .automatic)
+                    }
+                case .error(let error):
+                    print("error: \(error)")
+                }
+            }
+        }
 
 //    @objc func addBarButtonSystemItemSelector() {
 //        // Names

@@ -8,131 +8,178 @@
 import UIKit
 import RealmSwift
 
-class TasksTVC: UITableViewController {
-
+class TasksTVC: UITableViewController, UITableViewDragDelegate, UITableViewDropDelegate {
     
-    var tasks: Results<Task>!
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        let item = UIDragItem(itemProvider: NSItemProvider())
+          item.localObject = indexPath
+          return [item]
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+            
+        guard let _ = destinationIndexPath else { return .init(operation: .forbidden) }
+        return .init(operation: .move, intent: .insertAtDestinationIndexPath)
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        let destinationIndexPath = coordinator.destinationIndexPath
+        //coordinator.drop(item, toRowAt: IndexPath)
+    }
+    
+
+    var currentTaskList: TasksList!
+    var task: Results<Task>!
+   
+    
+   private var notCompletedTasks: Results<Task>!
+   private var completedTasks: Results<Task>!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        tasks = realm.objects(Task.self)
+        filteringTasks()
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
+        tableView.dragInteractionEnabled = true
         
         // добавляем кнопки "+" и "edit" в bar button
         let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addBarButtonSystemItemSelector))
         self.navigationItem.setRightBarButtonItems([add, editButtonItem], animated: true)
+        
     }
 
     // MARK: - Table view data source
 
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        tasks.count
+        return section == 0 ? notCompletedTasks.count : completedTasks.count
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let task = tasks[indexPath.row]
+        let firstSection = indexPath.section == 0
+        let task = firstSection ? notCompletedTasks[indexPath.row] : completedTasks[indexPath.row]
         cell.textLabel?.text = task.name
+        cell.detailTextLabel?.text = task.note
         return cell
     }
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    // указываем заголовок секции
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return section == 0 ? "Not completed tasks" : "Completed tasks"
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
-    @objc private func addBarButtonSystemItemSelector() {
-        alertForAddAndUpdatesTasks { [weak self] in
-            self?.navigationItem.title = "alertForAddAndUpdatesListTasks"
-            print("Tasks")
-        }
+
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
     }
-
-    // Делаем alertForAddAndUpdatesListTasks универсальной функцией
-    private func alertForAddAndUpdatesTasks(_ tasks: Task? = nil,
-                                                complition: @escaping () -> Void)
-    {
-        let title = tasks == nil ? "New Task" : "Edit Task"
-        let message = "Please insert task name"
-        let doneButtonName = tasks == nil ? "Save" : "Update"
-
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-
-        var alertTextField: UITextField!
-        let saveAction = UIAlertAction(title: doneButtonName, style: .default) { _ in
-            guard let newTaskName = alertTextField.text, !newTaskName.isEmpty else {
-                return
-            }
-
-            if let task = tasks {
-                StorageManager.editTask(task, newNameTask: task.name, newNote: task.note)
-            } else {
-                let task = Task()
-                task.name = newTaskName
-                StorageManager.saveTasks(tasks: task)
-                self.tableView.reloadData()
-                //                self.tableView.insertRows(at: [IndexPath(row: self.tasksLists.count - 1, section: 0)], with: .automatic)
-            }
+    
+    // MARK: - Table view delegate
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let task = indexPath.section == 0 ? notCompletedTasks[indexPath.row] : completedTasks[indexPath.row]
+        
+        let deleteContextItem = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+            StorageManager.deleteTask(task)
+            self.filteringTasks()
         }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-
-        alert.addAction(saveAction)
-        alert.addAction(cancelAction)
-
-        alert.addTextField { textField in
-            alertTextField = textField
-            if let taskName = tasks {
-                alertTextField.text = taskName.name
-            }
-            alertTextField.placeholder = "Task Name"
+        
+        let editContextItem = UIContextualAction(style: .destructive, title: "Edit") { _, _, _ in
+            self.alertForAddAndUpdateList(task)
         }
-        present(alert, animated: true)
+        
+        let doneText = task.isComplete ? "Not done" : "Done"
+        let doneContextItem = UIContextualAction(style: .destructive, title: doneText) { _, _, _ in
+            StorageManager.makeDone(task)
+            self.filteringTasks()
+        }
+        
+        editContextItem.backgroundColor = .orange
+        doneContextItem.backgroundColor = .green
+        
+        let swipeActions = UISwipeActionsConfiguration(actions: [deleteContextItem, editContextItem, doneContextItem])
+        
+        return swipeActions
     }
+    
+    // MARK: Private
 
-
+    private func filteringTasks() {
+        notCompletedTasks = currentTaskList.tasks.filter("isComplete = false")
+        completedTasks = currentTaskList.tasks.filter("isComplete = true")
+        tableView.reloadData()
+    }
 }
+
+
+ 
+    
+    // MARK: - Adding And Updating List
+
+    extension TasksTVC {
+        
+        @objc private func addBarButtonSystemItemSelector() {
+            alertForAddAndUpdateList()
+        }
+        
+        private func alertForAddAndUpdateList(_ taskForEditing: Task? = nil) {
+            let title = "Task value"
+            let message = (taskForEditing == nil) ? "Please insert new task value" : "Please edit your task"
+            let doneButton = (taskForEditing == nil) ? "Save" : "Update"
+
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            var taskTextField: UITextField!
+            var noteTextField: UITextField!
+
+            let saveAction = UIAlertAction(title: doneButton, style: .default) { _ in
+
+                guard let newNameTask = taskTextField.text, !newNameTask.isEmpty,
+                      let newNote = noteTextField.text, !newNote.isEmpty else { return }
+
+                if let taskForEditing = taskForEditing {
+                        StorageManager.editTask(taskForEditing,
+                                                newNameTask: newNameTask,
+                                                newNote: newNote)
+                } else {
+                    let task = Task()
+                    task.name = newNameTask
+                    task.note = newNote
+                    StorageManager.saveTask(self.currentTaskList, task: task)
+                }
+                self.filteringTasks()
+            }
+
+            let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+
+            alert.addAction(saveAction)
+            alert.addAction(cancelAction)
+
+            alert.addTextField { textField in
+                taskTextField = textField
+                taskTextField.placeholder = "New task"
+
+                if let taskName = taskForEditing {
+                    taskTextField.text = taskName.name
+                }
+            }
+
+            alert.addTextField { textField in
+                noteTextField = textField
+                noteTextField.placeholder = "Note"
+
+                if let taskName = taskForEditing {
+                    noteTextField.text = taskName.note
+                }
+            }
+
+            present(alert, animated: true)
+        }
+    }
+

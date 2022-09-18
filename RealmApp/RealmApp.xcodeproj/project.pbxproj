@@ -19,6 +19,7 @@
 		335DE6E628D0FE3A0045EB42 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335DE6E528D0FE3A0045EB42 /* StorageManager.swift */; };
 		335DE6E928D0FF880045EB42 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 335DE6E828D0FF880045EB42 /* Realm */; };
 		335DE6EB28D0FF880045EB42 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 335DE6EA28D0FF880045EB42 /* RealmSwift */; };
+		3368832528D72CE900581F80 /* UITableViewCellExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3368832428D72CE900581F80 /* UITableViewCellExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		335DE6E028D0FDD40045EB42 /* TasksLists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksLists.swift; sourceTree = "<group>"; };
 		335DE6E228D0FDDD0045EB42 /* Tasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tasks.swift; sourceTree = "<group>"; };
 		335DE6E528D0FE3A0045EB42 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		3368832428D72CE900581F80 /* UITableViewCellExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCellExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 		335DE6C328D0FC2E0045EB42 /* RealmApp */ = {
 			isa = PBXGroup;
 			children = (
+				3368832328D72CB100581F80 /* Extension */,
 				335DE6E428D0FE220045EB42 /* Managers */,
 				335DE6DA28D0FCA40045EB42 /* Models */,
 				335DE6DB28D0FCB50045EB42 /* Controllers */,
@@ -121,6 +124,14 @@
 				335DE6E528D0FE3A0045EB42 /* StorageManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		3368832328D72CB100581F80 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				3368832428D72CE900581F80 /* UITableViewCellExtension.swift */,
+			);
+			path = Extension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -208,6 +219,7 @@
 				335DE6E128D0FDD40045EB42 /* TasksLists.swift in Sources */,
 				335DE6E328D0FDDD0045EB42 /* Tasks.swift in Sources */,
 				335DE6C728D0FC2E0045EB42 /* SceneDelegate.swift in Sources */,
+				3368832528D72CE900581F80 /* UITableViewCellExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
