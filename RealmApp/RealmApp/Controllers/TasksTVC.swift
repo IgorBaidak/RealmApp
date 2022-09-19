@@ -29,7 +29,6 @@ class TasksTVC: UITableViewController, UITableViewDragDelegate, UITableViewDropD
 
     }
     
-
     var currentTaskList: TasksList!
     var task: Results<Task>!
    
@@ -118,8 +117,6 @@ class TasksTVC: UITableViewController, UITableViewDragDelegate, UITableViewDropD
     }
 }
 
-
- 
     
     // MARK: - Adding And Updating List
 
