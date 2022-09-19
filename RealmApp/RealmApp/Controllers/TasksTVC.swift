@@ -12,7 +12,7 @@ class TasksTVC: UITableViewController, UITableViewDragDelegate, UITableViewDropD
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         let item = UIDragItem(itemProvider: NSItemProvider())
-          item.localObject = indexPath
+        item.localObject = indexPath
           return [item]
     }
     
@@ -26,7 +26,7 @@ class TasksTVC: UITableViewController, UITableViewDragDelegate, UITableViewDropD
     
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
         let destinationIndexPath = coordinator.destinationIndexPath
-        //coordinator.drop(item, toRowAt: IndexPath)
+
     }
     
 
